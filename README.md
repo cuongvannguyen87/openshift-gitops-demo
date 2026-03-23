@@ -103,3 +103,67 @@ openshift-gitops-demo/
         ├── service.yaml
         └── route.yaml
 ```
+
+---
+
+## Demo scenarios
+
+### 1. Manage app configuration from Git
+
+Edit `apps/demo-app/configmap.yaml` in GitHub.
+
+Change:
+
+```yaml
+APP_MESSAGE: "Hello from Argo CD"
+```
+
+To:
+
+```yaml
+APP_MESSAGE: "Configuration changed from GitHub"
+```
+
+Commit and push the change, then show the change:
+
+```bash
+oc get configmap demo-app-config -n demo-app -o yaml
+```
+
+### 2. Scale the app from Git
+
+Edit `apps/demo-app/deployment.yaml` in GitHub.
+
+Change:
+
+```yaml
+replicas: 1
+```
+
+To:
+
+```yaml
+replicas: 2
+```
+
+Commit and push the change, then show the change:
+
+```bash
+oc get pods -n demo-app
+oc get deployment demo-app -n demo-app
+```
+
+### 3. Self-heal cluster drift
+
+After the app is synced, manually change the deployment in the cluster:
+
+```bash
+oc scale deployment demo-app -n demo-app --replicas=3
+```
+
+Then watch what happens:
+
+```bash
+oc get deployment demo-app -n demo-app -w
+oc get route demo-app -n demo-app -o jsonpath='{.spec.host}{"\n"}'
+```
