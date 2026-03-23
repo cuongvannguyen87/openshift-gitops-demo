@@ -1,0 +1,14 @@
+aws_region               = "ap-southeast-1"
+availability_zone        = "ap-southeast-1a"
+
+vpc_cidr                 = "10.10.0.0/16"
+public_subnet_cidr       = "10.10.1.0/24"
+private_sno_subnet_cidr  = "10.10.10.0/24"
+
+private_hosted_zone_name = "aws.ocp.internal"
+
+admin_cidr               = "0.0.0.0/0"
+bastion_ssh_public_key   = "ssh-ed25519 AAAA...your_windows_public_key..."
+bastion_instance_type    = "t3.small"
+
+project_tag              = "custom-project-tag"
