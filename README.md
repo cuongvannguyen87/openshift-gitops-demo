@@ -104,6 +104,18 @@ openshift-gitops-demo/
         └── route.yaml
 ```
 
+Notes:
+* Argo CD application controller runs as this service account:
+```text
+system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller
+```
+* You might need to grant Argo CD controller access to namespaces for things like Deployments, Services, Routes, etc.
+```bash
+oc adm policy add-role-to-user admin \
+  system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller \
+  -n demo-app
+```
+
 ---
 
 ## Demo scenarios

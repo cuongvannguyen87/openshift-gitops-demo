@@ -13,33 +13,34 @@ This guide shows a simple way to deploy **Single Node OpenShift (SNO)** on AWS w
 ## High-level deployment
 
 ```text
-                          Your laptop
-                              |
-                              | SSH / Browser via SOCKS proxy
-                              v
-                    +----------------------+
-                    |   Bastion Host EC2   |
-                    |   Public subnet      |
-                    |   Public IP          |
-                    +----------+-----------+
-                               |
-                               | HTTPS / oc / ssh
-                               | DNS queries to VPC resolver
-                               v
+                             Your laptop
+                                 |
+                                 | SSH / Browser via SOCKS proxy
+                                 v
   +------------------------------------------------------------------+
-  |                       AWS VPC (ap-southeast-1)                   |
+  |                    AWS VPC (ap-southeast-1)                      |  
+  +------------------------------------------------------------------|
+  |                   +----------------------+                       |
+  |                   |   Bastion Host EC2   |                       |
+  |                   |   Public subnet      |                       |
+  |                   |   Public IP          |                       |
+  |                   |   NAT Gateway for AWS|                       |
+  |                   |   APIs and downloads |                       |
+  |                   +----------+-----------+                       |
+  |                              ^                                   |
+  |                              |                                   |
+  |                              | HTTPS / oc / ssh                  |
+  |                              | DNS queries to VPC resolver       |
+  |                              v                                   |
+  +------------------------------------------------------------------+
   |                                                                  |
-  |   +----------------------+         +---------------------------+  |
-  |   | Route 53 Private     |         | OpenShift SNO Node       |  |
-  |   | Hosted Zone          |         | Private subnet           |  |
-  |   | aws.ocp.internal     |<------->| API / Ingress endpoints  |  |
-  |   | associated to VPC    |  DNS    | Cluster services         |  |
-  |   +----------------------+         +---------------------------+  |
+  |   +----------------------+         +---------------------------+ |
+  |   | Route 53 Private     |         | OpenShift SNO Node        | |
+  |   | Hosted Zone          |         | Private subnet            | |
+  |   | aws.ocp.internal     |<------->| API / Ingress endpoints   | |
+  |   | associated to VPC    |  DNS    | Cluster services          | |
+  |   +----------------------+         +---------------------------+ |
   |                                                                  |
-  |                  +-------------------------------+               |
-  |                  | NAT Gateway / egress path     |               |
-  |                  | for AWS APIs and downloads    |               |
-  |                  +-------------------------------+               |
   +------------------------------------------------------------------+
 ```
 
