@@ -2,12 +2,11 @@
 
 This guide shows a simple demo for **OpenShift GitOps (Argo CD)** on an already-running **Single Node OpenShift (SNO)** cluster in AWS.
 
-The demo uses a small GitHub repository and shows below **common GitOps scenarios**:
+The demo uses a small GitHub repository and shows the **3 common GitOps scenarios**:
 
 1. **Manage app configuration** with a ConfigMap
 2. **Scale the app from Git**
 3. **Self-heal drift** when someone changes the cluster manually
-4. Use **Kustomize** to deploy the same application into multiple environments
 
 ---
 
@@ -97,31 +96,12 @@ Use this example structure:
 openshift-gitops-demo/
 ├── README.md
 └── apps/
-    ├── demo-app/
-    │   ├── namespace.yaml
-    │   ├── configmap.yaml
-    │   ├── deployment.yaml
-    │   ├── service.yaml
-    │   └── route.yaml
-    │
-    └── demo-app-kustomize/
-        ├── base/
-        │   ├── configmap.yaml
-        │   ├── deployment.yaml
-        │   ├── service.yaml
-        │   ├── route.yaml
-        │   └── kustomization.yaml
-        │
-        └── overlays/
-            ├── dev/
-            │   ├── kustomization.yaml
-            │   ├── deployment-patch.yaml
-            │   └── configmap-patch.yaml
-            │
-            └── prod/
-                ├── kustomization.yaml
-                ├── deployment-patch.yaml
-                └── configmap-patch.yaml
+    └── demo-app/
+        ├── namespace.yaml
+        ├── configmap.yaml
+        ├── deployment.yaml
+        ├── service.yaml
+        └── route.yaml
 ```
 
 Notes:
@@ -198,93 +178,4 @@ Then watch what happens:
 ```bash
 oc get deployment demo-app -n demo-app -w
 oc get route demo-app -n demo-app -o jsonpath='{.spec.host}{"\n"}'
-```
-
-### 4. Kustomize: Deploy dev and prod environments
-
-Use Kustomize to deploy the same application into multiple environments without duplicating YAML files.
-
-#### Dev environment
-
-* Namespace: demo-app-dev
-* Replicas: 2
-* Config:
-  * APP_ENV=dev
-  * LOG_LEVEL=debug
-
-Application yaml:
-```text
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: demo-app-kustomize-dev
-  namespace: openshift-gitops
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/<your-github-username>/openshift-gitops-demo.git
-    targetRevision: main
-    path: apps/demo-app-kustomize/overlays/dev
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: demo-app-dev
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-```
-
-#### Prod environment
-
-* Namespace: demo-app-prod
-* Replicas: 3
-* Config:
-  * APP_ENV=prod
-  * LOG_LEVEL=info
-
-Application yaml:
-```text
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: demo-app-kustomize-prod
-  namespace: openshift-gitops
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/<your-github-username>/openshift-gitops-demo.git
-    targetRevision: main
-    path: apps/demo-app-kustomize/overlays/prod
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: demo-app-prod
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-```
-
-#### Verify
-
-After sync:
-
-```bash
-# Check pods
-
-oc get pods -n demo-app-dev
-oc get pods -n demo-app-prod
-
-# Check replicas
-
-oc get deploy -n demo-app-dev
-oc get deploy -n demo-app-prod
-
-# Check ConfigMap
-
-oc get configmap demo-app-config -n demo-app-dev -o yaml
-oc get configmap demo-app-config -n demo-app-prod -o yaml
 ```
