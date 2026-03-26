@@ -6,5 +6,5 @@ metadata:
 data:
   APP_NAME: "demo-app"
   APP_ENV: "demo"
-  APP_MESSAGE: "Hello from Argo CD"
+  APP_MESSAGE: "Configuration changed from GitHub"
   LOG_LEVEL: "info"
